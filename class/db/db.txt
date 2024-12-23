@@ -1,3 +1,31 @@
-db관련 클래스 추가
+book 테이블 (도서대여 관련 테이블)
+seq             도서대여 일련번호 (PK)
+book_seq        책 일련번호 (FK - book_info / book_seq)
+user_seq        사용자 일련번호 (FK - user / user_seq)
+book_start_dt   대여 시작일
+book_end_dt     대여 종료일
+book_status     대여상태
 
-수정
+book_info 테이블 (도서 정보 테이블)
+book_seq        책 일련번호 (PK)
+book_room       도서관 명(사용x)
+book_room_nm    도서 보관 장소 명
+book_serial_num 도서 시리얼넘버
+book_nm         도서명
+book_author     저자
+book_publisher  출판사
+book_pub_year   출판년도
+book_call_num   도서번호
+book_date       API 업데이트 일자(사용x)
+
+user 테이블 (사용자 정보 테이블)
+user_seq        사용자 일련번호 (PK)
+user_id         사용자 아이디
+user_pwd        사용자 비밀번호
+user_name       사용자명
+user_birth      사용자 생년월일
+user_gender     사용자 성별
+user_tel        사용자 연락처
+user_addr       사용자 주소
+user_grade      사용자 등급
+user_join_dt    사용자 가입 일자
