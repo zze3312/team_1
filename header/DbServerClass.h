@@ -3,6 +3,11 @@
 
 #include <iostream>
 #include <mariadb/conncpp.hpp>
+#include <cstring>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
 using namespace std;
 using namespace sql;
 
@@ -32,6 +37,11 @@ struct BookInfo {
     string bookEndDate;
 };
 
+struct serverRequest {
+    int requestSeq;
+    string requestId;
+};
+
 class DbServerClass {
 protected:
     Driver* driver;
@@ -39,7 +49,6 @@ protected:
 public:
     void databaseConnect();
     void serverOn();
-
 };
 
 
