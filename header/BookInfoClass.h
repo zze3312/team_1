@@ -6,12 +6,10 @@
 
 class BookInfoClass : public DbServerClass{
 public:
-    void selectBookList(); // 도서 목록
-    void selectBookInfo(); // 도서 정보
-    void checkOut(); // 대여하기
-    void checkIn(); // 반납하기
+    void selectBookList(int pageIdx); // 도서 목록
+    void selectBookInfo(int seq); // 도서 정보
+    void checkOut(int useq, int bseq); // 대여하기
+    void checkIn(int useq, int bseq); // 반납하기
 };
-
-
 
 #endif //BOOKINFOCLASS_H
