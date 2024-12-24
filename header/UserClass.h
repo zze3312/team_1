@@ -22,6 +22,32 @@ public:
     void selectUserList(int pageIdx);   // 회원목록 조회
 	void deleteUserId(int seq);         // 회원삭제
     void updateUserGrade(int grade, int seq); // 회원등급 변경
+
+    //getter, setter
+    void setUserInfo(UserInfo info) {
+        this -> loginUserInfo -> userSeq = info.userSeq;
+        this -> loginUserInfo -> userId = info.userId;
+        this -> loginUserInfo -> userName = info.userName;
+        this -> loginUserInfo -> userBirth = info.userBirth;
+        this -> loginUserInfo -> userGender = info.userGender;
+        this -> loginUserInfo -> userTel = info.userTel;
+        this -> loginUserInfo -> userAddress = info.userAddress;
+        this -> loginUserInfo -> userGrade = info.userGrade;
+    }
+
+    UserInfo getUserInfo() {
+        UserInfo info;
+        info.userSeq = this -> loginUserInfo -> userSeq;
+        info.userId = this -> loginUserInfo -> userId;
+        info.userName = this -> loginUserInfo -> userName;
+        info.userBirth = this -> loginUserInfo -> userBirth;
+        info.userGender = this -> loginUserInfo -> userGender;
+        info.userTel = this -> loginUserInfo -> userTel;
+        info.userAddress = this -> loginUserInfo -> userAddress;
+        info.userGrade = this -> loginUserInfo -> userGrade;
+
+        return info;
+    }
 };
 
 

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "DbServerClass.h"
+#include "UserClass.h"
 
 class BookInfoClass : public DbServerClass{
 public:

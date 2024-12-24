@@ -1,4 +1,4 @@
-#include "../../header/DbServerClass.h"
+#include "../header/DbServerClass.h"
 
 void DbServerClass::databaseConnect() {
     try {

@@ -1,4 +1,4 @@
-#include "../../header/UserClass.h"
+#include "../header/UserClass.h"
 
 UserClass::UserClass() {
     loginUserInfo = new UserInfo();
