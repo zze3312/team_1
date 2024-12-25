@@ -2,7 +2,7 @@
 #define BOOKINFOCLASS_H
 
 #include <iostream>
-#include "DbServerClass.h"
+#include "DbClass.h"
 #include "UserClass.h"
 
 class BookInfoClass : public DbClass{

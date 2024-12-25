@@ -1,4 +1,4 @@
-#include "ServerClientClass.h"
+#include "../header/ServerClientClass.h"
 
 void ServerClientClass::serverCheck(){
     if(serv_sock <= 0){

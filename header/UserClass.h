@@ -2,7 +2,7 @@
 #define USERCLASS_H
 
 #include <iostream>
-#include "DbServerClass.h"
+#include "DbClass.h"
 
 class UserClass : public DbClass{
     UserInfo *loginUserInfo;

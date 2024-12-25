@@ -1,4 +1,4 @@
-#include "CommClass.h"
+#include "../header/CommClass.h"
 vector<string> split(const string& input, string delimiter) {
     vector<string> result;
     auto start = 0;
