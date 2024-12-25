@@ -4,9 +4,15 @@
 #include <iostream>
 #include <mariadb/conncpp.hpp>
 #include <cstring>
+#include <sstream>
+#include <vector>
+#include <csignal>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#define BUF_SIZE 1024
+
 
 using namespace std;
 using namespace sql;
@@ -41,14 +47,19 @@ struct serverRequest {
     int requestSeq;
     string requestId;
 };
-
+void read_childproc(int sig);
+    const string PORT_NUM = "10000";
+    const string IP_ADDR = "127.0.0.1";
 class DbServerClass {
+    void error_handling(char *message);
 protected:
     Driver* driver;
     unique_ptr<Connection> conn;
 public:
     void databaseConnect();
     void serverOn();
+    void clientConnect();
+    vector<string> split(const string& input, string delimiter);
 };
 
 
