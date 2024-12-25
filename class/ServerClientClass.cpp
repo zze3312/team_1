@@ -1,41 +1,12 @@
-#include "../header/DbServerClass.h"
+#include "ServerClientClass.h"
 
-struct test : public DbServerClass{
-    int a;
-    string b;
-    string c;
-    test(){}
-    test(int a,char *b,char *c) : a(a), b(b), c(c){}
-    string serializeData(){
-        return to_string(a) + "^%^" + b + "^%^" + c;
-    }
-    void deserializeData(string s){
-        cout << "1 : " << split(s, "^%^")[0] << endl;
-        cout << "2 : " << split(s, "^%^")[1] << endl;
-        cout << "3 : " << split(s, "^%^")[2] << endl;
-    }
-};
-
-
-void DbServerClass::databaseConnect() {
-    try {
-        // DB연결 객체 생성
-        driver = mariadb::get_driver_instance();
-        // 연결할 DB의 특정 IP, DB를 정의
-        SQLString url("jdbc:mariadb://localhost:3306/project");
-        // 연결할 DB를 사용할 유저를 정의
-        Properties properties({{"user", "jh2"}, {"password", "admin"}});
-        // 객체에 값을 통하여 연결을 시도
-        conn = unique_ptr<Connection>(driver->connect(url, properties));
-    }catch(SQLException& e) {
-        cerr << "Error Connecting to MariaDB Platform: " << e.what() << endl;
-        // 프로그램 비정상 종료
-        exit(1);
+void ServerClientClass::serverCheck(){
+    if(serv_sock <= 0){
+        cout << "서버닫혀있음" << endl;
     }
 }
 
-void DbServerClass::serverOn() {
-    int serv_sock; // 서버소켓의 파일디스크립터 저장 공간
+void ServerClientClass::serverOn() {
     int clnt_sock; // 클라이언트소켓의 파일디스크립터 저장 공간
     int str_len, state;
 
@@ -105,11 +76,14 @@ void DbServerClass::serverOn() {
             close(clnt_sock);
         }
     }
+}
+
+void ServerClientClass::serverOff() {
     close(serv_sock);
     cout << "서버 끝!" << endl;
 }
 
-void DbServerClass::clientConnect() {
+void ServerClientClass::clientConnect() {
     int sock;
     sockaddr_in serv_addr;
     char reqNum[BUF_SIZE] = "";
@@ -156,29 +130,9 @@ void DbServerClass::clientConnect() {
     cout << "클라이언트 끝!" << endl;
 }
 
-vector<string> DbServerClass::split(const string& input, string delimiter) {
-    vector<string> result;
-    auto start = 0;
-    auto end = input.find(delimiter);
 
-    // 구분자가 발견될 때까지 반복
-    while(end != string::npos) {
-        // start부터 end까지 부분 문자열을 추출하여 result에 추가
-        result.push_back(input.substr(start, end - start));
 
-        // start를 다음 부분으로 이동
-        start = end + delimiter.size();
-
-        // 다음 구분자 위치를 찾음
-        end = input.find(delimiter, start);
-    }
-
-    // 마지막 부분 문자열을 result에 추가
-    result.push_back(input.substr(start));
-    return result;
-}
-
-void DbServerClass::error_handling(char *message) {
+void ServerClientClass::error_handling(char *message) {
     fputs(message, stderr);
     fputc('\n', stderr);
     exit(1);

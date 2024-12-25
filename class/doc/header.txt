@@ -1,5 +1,11 @@
-헤더파일 추가
+CommClass.h : 공통 클래스 (공용으로 사용해야되는 함수같은것들 넣기!)
 
-test
+DbClass.h : Database 클래스
+            (자식 클래스 : BookInfoClass, UserClass >> DbClass의 생성자 > db connect, 소멸자 > db disconnect)
+BookInfoClass.h : 도서 관련 클래스
+UserClass.h : 사용자 관련 클래스
 
-ㅇㅇㅇㅇ
+ServerClientClass.h : 서버 open 및 client의 접속 관련 클래스
+ServerClass.h : 서버 기능 클래스(클라이언트 요청에 따른 서버 핸들러)
+ClientClass.h : 클라이언트 기능 클래스
+

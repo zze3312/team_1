@@ -4,7 +4,7 @@
 #include <iostream>
 #include "DbServerClass.h"
 
-class UserClass : public DbServerClass{
+class UserClass : public DbClass{
     UserInfo *loginUserInfo;
 public:
     UserClass();

@@ -5,7 +5,7 @@
 #include "DbServerClass.h"
 #include "UserClass.h"
 
-class BookInfoClass : public DbServerClass{
+class BookInfoClass : public DbClass{
 public:
     void selectBookList(int pageIdx); // 도서 목록
     void selectBookInfo(int seq); // 도서 정보
