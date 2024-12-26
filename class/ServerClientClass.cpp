@@ -132,7 +132,7 @@ void ServerClientClass::clientConnect() {
 
 
 
-void ServerClientClass::error_handling(char *message) {
+void ServerClientClass::error_handling(const char *message) {
     fputs(message, stderr);
     fputc('\n', stderr);
     exit(1);

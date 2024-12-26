@@ -25,7 +25,7 @@ class ServerClientClass {
     const string PORT_NUM = "10000";
     const string IP_ADDR = "127.0.0.1";
     int serv_sock = 0; // 서버소켓의 파일디스크립터 저장 공간
-    void error_handling(char *message);
+    void error_handling(const char *message);
 public:
     void serverCheck();
     void serverOn();

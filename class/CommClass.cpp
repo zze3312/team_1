@@ -1,5 +1,5 @@
 #include "../header/CommClass.h"
-vector<string> split(const string& input, string delimiter) {
+vector<string> CommClass::split(const string& input, string delimiter) {
     vector<string> result;
     auto start = 0;
     auto end = input.find(delimiter);

@@ -89,6 +89,7 @@ bool UserClass::join(UserInfo joinInfo) {
         cerr << "Error (UserClass::join) : " << e.what() << endl;
         return false;
     }
+    return false;
 }
 
 void UserClass::selectUserInfo() {

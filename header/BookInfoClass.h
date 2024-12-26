@@ -7,6 +7,7 @@
 
 class BookInfoClass : public DbClass{
 public:
+    BookInfoClass() : DbClass() {}
     void selectBookList(int pageIdx); // 도서 목록
     void selectBookInfo(int seq); // 도서 정보
     void checkOut(int useq, int bseq); // 대여하기
