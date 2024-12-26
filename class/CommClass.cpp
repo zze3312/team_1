@@ -1,6 +1,8 @@
 #include "../header/CommClass.h"
-vector<string> CommClass::split(const string& input, string delimiter) {
-    vector<string> result;
+
+list <string> CommClass::split(const string& input, string delimiter) {
+    //vector<string> result;
+    list <string> result;
     auto start = 0;
     auto end = input.find(delimiter);
 

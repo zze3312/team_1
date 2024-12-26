@@ -1,14 +1,5 @@
 #include "../header/UserClass.h"
 
-UserClass::UserClass() {
-    loginUserInfo = new UserInfo();
-}
-
-UserClass::~UserClass() {
-    delete loginUserInfo;
-}
-
-
 bool UserClass::login(string userId, string userPassword){
     try {
         // createStaemet 객체 생성
@@ -25,6 +16,7 @@ bool UserClass::login(string userId, string userPassword){
         res->next();
         if (res->getInt("cnt") > 0) {
             cout << "로그인 성공" << endl;
+            //TODO : 로그인 정보 담는 부분 필요
             return true;
         }else {
             cout << "아이디나 패스워드가 잘못됨" << endl;
@@ -92,8 +84,9 @@ bool UserClass::join(UserInfo joinInfo) {
     return false;
 }
 
-void UserClass::selectUserInfo() {
-    loginUserInfo->userId = "admin";
+UserInfo UserClass::selectUserInfo(string userId) {
+    userId = "admin";
+    UserInfo resultUserInfo;
     try {
         string queryString  = "select user_seq userSeq"
                               "     , user_id userId"
@@ -107,24 +100,28 @@ void UserClass::selectUserInfo() {
                               "from user "
                               "where user_id = ?";
         unique_ptr<PreparedStatement> stmnt(conn->prepareStatement(queryString));
-        stmnt->setString(1, loginUserInfo->userId);
+        stmnt->setString(1, userId);
         ResultSet *res = stmnt->executeQuery();
         res->next();
-        cout << "일련번호 : " << res->getInt("userSeq") << endl;
-        cout << "아이디 : " << res->getString("userId") << endl;
-        cout << "비밀번호 : " << res->getString("userPwd") << endl;
-        cout << "이름 : " << res->getString("userName") << endl;
-        cout << "생년월일 : " << res->getString("userBirth") << endl;
-        cout << "성별 : " << (res->getInt("userGender") == 0 ? "남자" : "여자") << endl;
-        cout << "연락처 : " << res->getString("userTel") << endl;
-        cout << "주소 : " << res->getString("userAddr") << endl;
-        cout << "회원등급 : " << res->getInt("userGrade") << endl;
+        resultUserInfo.userSeq = res->getInt("userSeq");
+        resultUserInfo.userId = res->getString("userId");
+        resultUserInfo.userPwd = res->getString("userPwd");
+        resultUserInfo.userName = res->getString("userName");
+        resultUserInfo.userBirth = res->getString("userBirth");
+        resultUserInfo.userGender = res->getInt("userGender");
+        resultUserInfo.userTel = res->getString("userTel");
+        resultUserInfo.userAddress = res->getString("userAddr");
+        resultUserInfo.userGrade = res->getInt("userGrade");
+
     }catch(SQLException& e) {
         cerr << "Error (UserClass::selectUserInfo) : " << e.what() << endl;
     }
+
+    return resultUserInfo;
 }
 
-void UserClass::selectCheckOutBookList() {
+BookInfo UserClass::selectCheckOutBookList(string userId) {
+    BookInfo resultBookInfo;
     try {
         string queryString  = "select book.book_seq bookSeq"
                               " , book.book_nm bookName"
@@ -135,17 +132,20 @@ void UserClass::selectCheckOutBookList() {
                               " on book.book_seq = b.book_seq"
                               " and b.user_seq = ?";
         unique_ptr<PreparedStatement> stmnt(conn->prepareStatement(queryString));
-        stmnt->setString(1, loginUserInfo->userId);
+        stmnt->setString(1, userId);
         ResultSet *res = stmnt->executeQuery();
+        int idx = 0;
         while (res->next()) {
-            cout << "번호 : " << res->getInt("bookSeq") << endl;
-            cout << "책이름 : " << res->getString("bookName") << endl;
-            cout << "저자 : " << res->getString("bookAuth") << endl;
-            cout << "대여상태 : " << res->getInt("bookStatus") << endl;
+            resultBookInfo.bookList[idx].bookSeq = res->getInt("bookSeq");
+            resultBookInfo.bookList[idx].bookName = res->getString("bookName");
+            resultBookInfo.bookList[idx].bookAuthor = res->getString("bookAuth");
+            resultBookInfo.bookList[idx].bookStatus = res->getInt("bookStatus");
+            idx++;
         }
     }catch(SQLException& e) {
         cerr << "Error (UserClass::selectCheckOutBookList) : " << e.what() << endl;
     }
+    return resultBookInfo;
 }
 
 bool UserClass::updateUserInfo(UserInfo udtInfo) {
@@ -153,11 +153,11 @@ bool UserClass::updateUserInfo(UserInfo udtInfo) {
         string queryString  = "update user "
                               "set user_tel = ?"
                               " , user_addr = ? "
-                              "where user_id = ?";
+                              "where user_seq = ?";
         unique_ptr<PreparedStatement> stmnt(conn->prepareStatement(queryString));
         stmnt->setString(1, udtInfo.userTel);
         stmnt->setString(2, udtInfo.userAddress);
-        stmnt->setString(3, udtInfo.userId);
+        stmnt->setInt(3, udtInfo.userSeq);
 
         stmnt->executeQuery();
         return true;
@@ -242,11 +242,15 @@ bool UserClass::duplicateUserId(string id) {
     }
 }
 
-void UserClass::selectUserList(int pageIdx) {
+UserInfo UserClass::selectUserList(int pageIdx) {
+    UserInfo resultUserInfo;
     try {
-        int pageStartNum = (pageIdx - 1) * 10;
-        int pageEndNum = pageIdx * 10;
-
+        int pageStartNum = 0;
+        int pageEndNum = 10;
+        if (pageIdx > 0) {
+            int pageStartNum = (pageIdx - 1) * 10;
+            int pageEndNum = pageIdx * 10;
+        }
         string queryString  = "select @ROWNUM:=@ROWNUM+1 AS ROWNUM"
                               ", A.* "
                               "from ("
@@ -272,13 +276,14 @@ void UserClass::selectUserList(int pageIdx) {
         res->beforeFirst();
 
         if (totalRow != 0) {
+            int idx = 0;
             while (res->next()) {
-                cout << "번호 : " << res->getString("ROWNUM") << endl;
-                cout << "사용자 일련번호 : " << res->getString("userSeq") << endl;
-                cout << "이름 : " << res->getString("userName") << endl;
-                cout << "연락처 : " << res->getString("userTel") << endl;
-                cout << "대여권수 : " << res->getString("bookCnt") << endl;
-                cout << "회원등급 : " << res->getString("userGrade") << endl;
+                resultUserInfo.userList[idx].userSeq = atoi(res->getString("userSeq").c_str());
+                resultUserInfo.userList[idx].userName = res->getString("userName");
+                resultUserInfo.userList[idx].userTel = res->getString("userTel");
+                resultUserInfo.userList[idx].userGrade = atoi(res->getString("userGrade").c_str());
+                resultUserInfo.userList[idx].bookCnt = atoi(res->getString("bookCnt").c_str());
+                idx++;
             }
         }else {
             cout << "조회된 내용이 없습니다." << endl;
@@ -286,21 +291,24 @@ void UserClass::selectUserList(int pageIdx) {
     }catch(SQLException& e) {
         cerr << "Error (UserClass::selectUserList) : " << e.what() << endl;
     }
+    return resultUserInfo;
 }
 
-void UserClass::deleteUserId(int userSeq) {
+bool UserClass::deleteUserId(int userSeq) {
     try {
         string queryString  = "delete from user "
                               "where user_seq = ?";
         unique_ptr<PreparedStatement> stmnt(conn->prepareStatement(queryString));
         stmnt->setInt(1, userSeq);
         stmnt->executeQuery();
+        return true;
     }catch(SQLException& e) {
         cerr << "Error (UserClass::deleteUserId) : " << e.what() << endl;
+        return false;
     }
 }
 
-void UserClass::updateUserGrade(int grade, int userSeq) {
+bool UserClass::updateUserGrade(int grade, int userSeq) {
     try {
         string queryString  = "update user "
                               "set user_grade = ? "
@@ -309,8 +317,10 @@ void UserClass::updateUserGrade(int grade, int userSeq) {
         stmnt->setInt(1, grade);
         stmnt->setInt(2, userSeq);
         stmnt->executeQuery();
+        return true;
     }catch(SQLException& e) {
         cerr << "Error (UserClass::updateUserGrade) : " << e.what() << endl;
+        return false;
     }
 }
 

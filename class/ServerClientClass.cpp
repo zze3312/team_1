@@ -6,7 +6,7 @@ void ServerClientClass::serverCheck(){
     }
 }
 
-void ServerClientClass::serverOn() {
+void ServerClientClass::serverOn(string port) {
     int clnt_sock; // 클라이언트소켓의 파일디스크립터 저장 공간
     int str_len, state;
 
@@ -16,7 +16,6 @@ void ServerClientClass::serverOn() {
 
     pid_t pid;
     struct sigaction act;
-    char reqNum[BUF_SIZE] = "";
 
     act.sa_handler = read_childproc;
     sigemptyset(&act.sa_mask);
@@ -27,18 +26,20 @@ void ServerClientClass::serverOn() {
     if (serv_sock == -1) {
         error_handling("socket() error");
     }
-
+    cout << "서버시작..." << endl;
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(atoi(PORT_NUM.c_str()));
+    serv_addr.sin_port = htons(atoi(port.c_str()));
 
     if (bind(serv_sock, (sockaddr*)&serv_addr, sizeof(serv_addr)) == -1) {
         error_handling("bind() error");
     }
+    cout << "바인딩 완료..." << endl;
     if (listen(serv_sock, 5) == -1) {
         error_handling("listen() error");
     }
+    cout << "리스닝 준비 완료..." << endl;
 
     while (1) {
         clnt_addr_size = sizeof(clnt_addr);
@@ -54,24 +55,29 @@ void ServerClientClass::serverOn() {
             continue;
         }
         if (pid == 0) {
+            char clntMsg[BUF_SIZE] = "";
             close(serv_sock);
             cout << "클라이언트의 데이터 기다리는중..." << endl;
             //서버통신
-            read(clnt_sock, &reqNum, sizeof(int));
-            cout << "클라이언트에게 데이터 받음 : " << reqNum << endl;
+            read(clnt_sock, &clntMsg, BUF_SIZE);
+            cout << "클라이언트에게 데이터 받음 : " << clntMsg << endl;
 
-            if (!strcmp(reqNum, "q\n") || !strcmp(reqNum, "Q\n")) {
-                break;
-            }
+            string reqMsg = clntMsg;
+            string responseMsg = "";
 
-            test *t = new test(1,"HImynameisjihyeon", "jihyeon222221231231");
-            string buf = t->serializeData();
-            buf += "^%^" + string(reqNum);
+            ServerClass *svr = new ServerClass();
+            responseMsg = svr->serverHandler(reqMsg);
+            cout << "요청 결과 : " << responseMsg << endl;
 
-            write(clnt_sock, buf.c_str(), buf.size());
+
+            // if (!strcmp(reqNum, "q\n") || !strcmp(reqNum, "Q\n")) {
+            //     break;
+            // }
+
+            write(clnt_sock, responseMsg.c_str(), responseMsg.size());
+            cout << "클라이언트에게 데이터 보냄 : " << responseMsg << endl;
             shutdown(clnt_sock, SHUT_WR);
-            cout << "클라이언트에게 데이터 보냄 : " << buf << endl;
-            delete t;
+            delete svr;
         }else {
             close(clnt_sock);
         }
@@ -83,10 +89,9 @@ void ServerClientClass::serverOff() {
     cout << "서버 끝!" << endl;
 }
 
-void ServerClientClass::clientConnect() {
+void ServerClientClass::clientConnect(string port, string req, UserInfo *user, BookInfo *book, int pageIndex) {
     int sock;
     sockaddr_in serv_addr;
-    char reqNum[BUF_SIZE] = "";
 
     int str_len = 0;
     int idx = 0;
@@ -100,30 +105,31 @@ void ServerClientClass::clientConnect() {
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = inet_addr(IP_ADDR.c_str());
-    serv_addr.sin_port = htons(atoi(PORT_NUM.c_str()));
+    serv_addr.sin_port = htons(atoi(port.c_str()));
 
     if (connect(sock, (sockaddr *)&serv_addr, sizeof(serv_addr)) == -1) {
         error_handling("connect() error");
     }
-
-    fputs("Input message(Q to quit) : ", stdout);
-    fgets(reqNum, BUF_SIZE, stdin);
-    if (!strcmp(reqNum, "q\n") || !strcmp(reqNum, "Q\n")) {
+    cout << "클라이언트 커넥트 완료..." << endl;
+    if (req == "q" || req == "Q") {
         return;
     }
 
-    write(sock, &reqNum, sizeof(int));
-    cout << "메세지 보냄!!" << endl;
+    char reqMsg[BUF_SIZE];
+    ClientClass *clnt_class = new ClientClass();
+    strcpy(reqMsg, clnt_class->sendMsgConvert(req, user, book, pageIndex).c_str());
 
-    char msg[1024] = "";
-    read(sock, &msg[idx++], BUF_SIZE);
-    cout << "read_len : " << read_len << endl;
+    write(sock, &reqMsg, sizeof(reqMsg));
+    cout << "메세지 보냄!! : " << reqMsg << endl;
+
+    char msg[BUF_SIZE] = "";
+    read(sock, &msg, BUF_SIZE);
 
     printf("Message from server : %s\n", msg);
     cout << "메세지 받음!!" << endl;
 
-    test t;
-    t.deserializeData(msg);
+    UserInfo t;
+    t.deserialize(msg);
 
     shutdown(sock, SHUT_RD);
     close(sock);

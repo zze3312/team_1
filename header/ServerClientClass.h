@@ -12,13 +12,13 @@
 #include <sys/wait.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include "CommClass.h"
+#include "ServerClass.h"
+#include "ClientClass.h"
 
-#define BUF_SIZE 1024
+
+#define BUF_SIZE 10000
 
 using namespace std;
-CommClass comm;
-
 void read_childproc(int sig);
 
 class ServerClientClass {
@@ -28,25 +28,9 @@ class ServerClientClass {
     void error_handling(const char *message);
 public:
     void serverCheck();
-    void serverOn();
+    void serverOn(string port);
     void serverOff();
-    void clientConnect();
-};
-
-struct test : public ServerClientClass{
-    int a;
-    string b;
-    string c;
-    test(){}
-    test(int a,char *b,char *c) : a(a), b(b), c(c){}
-    string serializeData(){
-        return to_string(a) + "^%^" + b + "^%^" + c;
-    }
-    void deserializeData(string s){
-        cout << "1 : " << comm.split(s, "^%^")[0] << endl;
-        cout << "2 : " << comm.split(s, "^%^")[1] << endl;
-        cout << "3 : " << comm.split(s, "^%^")[2] << endl;
-    }
+    void clientConnect(string port, string reqNum, UserInfo *user, BookInfo *book, int pageIndex);
 };
 
 #endif //SERVERCLIENTCLASS_H
